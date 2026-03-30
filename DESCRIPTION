@@ -1,0 +1,26 @@
+Package: safetysignal
+Title: Bayesian Gamma-Poisson Signal Detection for Pharmacovigilance
+Version: 0.1.0
+Authors@R:
+    person("Harlan", "Nelson", , "hnelson3@iuhealth.org", role = c("aut", "cre"))
+Description: Implements the Multi-item Gamma-Poisson Shrinker (MGPS) for
+    detecting disproportionate reporting of adverse events in spontaneous
+    reporting systems (FAERS, VAERS, MAUDE). Uses a 2-component Gamma
+    mixture prior fitted via EM algorithm, with full posterior percentiles
+    for signal detection.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.2
+Imports:
+    cli,
+    dplyr,
+    rlang,
+    stats,
+    tibble
+Suggests:
+    ggplot2,
+    knitr,
+    rmarkdown,
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3

@@ -1,0 +1,7 @@
+^.*\.Rproj$
+^\.Rproj\.user$
+^CLAUDE\.md$
+^\.claude$
+^flake\.nix$
+^flake\.lock$
+^\.venv$
