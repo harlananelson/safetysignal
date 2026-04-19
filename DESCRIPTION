@@ -1,13 +1,16 @@
 Package: safetysignal
-Title: Bayesian Gamma-Poisson Signal Detection for Pharmacovigilance
-Version: 0.1.0
+Title: Bayesian and Frequentist Signal Detection for Pharmacovigilance
+Version: 0.2.0
 Authors@R:
     person("Harlan", "Nelson", , "hnelson3@iuhealth.org", role = c("aut", "cre"))
-Description: Implements the Multi-item Gamma-Poisson Shrinker (MGPS) for
-    detecting disproportionate reporting of adverse events in spontaneous
-    reporting systems (FAERS, VAERS, MAUDE). Uses a 2-component Gamma
-    mixture prior fitted via EM algorithm, with full posterior percentiles
-    for signal detection.
+Description: Disproportionality analysis for adverse event surveillance data
+    (FAERS, VAERS, MAUDE). Implements the Multi-item Gamma-Poisson Shrinker
+    (MGPS) with EM-fitted 2-component Gamma mixture prior (DuMouchel 1999),
+    the Proportional Reporting Ratio with Yates chi-squared (Evans 2001),
+    the Reporting Odds Ratio (van Puijenbroek 2002), and Bayesian Confidence
+    Propagation Neural Network / Information Component (Bate 1998). A unified
+    detect_all_methods() entry point runs any combination and cross-flags
+    signals across methods.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
