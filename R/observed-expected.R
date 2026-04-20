@@ -45,13 +45,14 @@ compute_observed_expected <- function(data, drug_col, event_col, count_col = NUL
     dplyr::group_by(.data$event) |>
     dplyr::summarize(n_event = sum(.data$observed), .groups = "drop")
 
-  # Expected under independence
+  # Expected under independence. Coerce to double before multiplying: at
+  # full-FAERS scale (millions of reports) n_drug * n_event overflows int32.
   counts |>
     dplyr::left_join(drug_totals, by = "drug") |>
     dplyr::left_join(event_totals, by = "event") |>
     dplyr::mutate(
-      expected = (.data$n_drug * .data$n_event) / n_total,
-      rr = .data$observed / .data$expected
+      expected = (as.double(.data$n_drug) * as.double(.data$n_event)) / as.double(n_total),
+      rr = as.double(.data$observed) / .data$expected
     ) |>
     dplyr::select("drug", "event", "observed", "expected", "rr")
 }
