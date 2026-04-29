@@ -69,12 +69,18 @@ detect_all_methods <- function(data,
       event_totals <- data |>
         dplyr::group_by(.data$event) |>
         dplyr::summarize(n_event = sum(.data$observed), .groups = "drop")
+      # Coerce to double before multiplying: at full-FAERS scale
+      # (millions of reports cumulative across many quarters) n_drug *
+      # n_event overflows int32 (~2.1e9 max). Mirrors the fix in
+      # observed-expected.R:54. Without this, detect_all_methods returns
+      # NULL via dplyr's NA-on-overflow, and the calling pipeline (e.g.
+      # signal-compute) silently drops affected quarters.
       oe <- data |>
         dplyr::left_join(drug_totals, by = "drug") |>
         dplyr::left_join(event_totals, by = "event") |>
         dplyr::mutate(
-          expected = (.data$n_drug * .data$n_event) / n_total,
-          rr = .data$observed / .data$expected
+          expected = (as.double(.data$n_drug) * as.double(.data$n_event)) / as.double(n_total),
+          rr = as.double(.data$observed) / .data$expected
         ) |>
         dplyr::select("drug", "event", "observed", "expected", "rr")
     } else {
