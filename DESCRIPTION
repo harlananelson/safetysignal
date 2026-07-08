@@ -2,7 +2,7 @@ Package: safetysignal
 Title: Bayesian and Frequentist Signal Detection for Pharmacovigilance
 Version: 0.2.1
 Authors@R:
-    person("Harlan", "Nelson", , "hnelson3@iuhealth.org", role = c("aut", "cre"))
+    person("Harlan", "Nelson", , "harlananelson@gmail.com", role = c("aut", "cre"))
 Description: Disproportionality analysis for adverse event surveillance data
     (FAERS, VAERS, MAUDE). Implements the Multi-item Gamma-Poisson Shrinker
     (MGPS) with EM-fitted 2-component Gamma mixture prior (DuMouchel 1999),
