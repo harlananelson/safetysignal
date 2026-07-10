@@ -23,23 +23,55 @@ posterior_percentile <- function(posterior_data, percentile = 0.05, col_name = N
     col_name <- paste0("eb", sprintf("%02d", round(percentile * 100)))
   }
 
-  vals <- vapply(
-    seq_len(nrow(posterior_data)),
-    \(i) {
-      .mixture_quantile(
-        p = percentile,
-        q = posterior_data$q_post[i],
-        alpha1 = posterior_data$alpha1_post[i],
-        beta1 = posterior_data$beta1_post[i],
-        alpha2 = posterior_data$alpha2_post[i],
-        beta2 = posterior_data$beta2_post[i]
-      )
-    },
-    double(1)
-  )
+  idx <- seq_len(nrow(posterior_data))
+  quantile_one <- function(i) {
+    .mixture_quantile(
+      p = percentile,
+      q = posterior_data$q_post[i],
+      alpha1 = posterior_data$alpha1_post[i],
+      beta1 = posterior_data$beta1_post[i],
+      alpha2 = posterior_data$alpha2_post[i],
+      beta2 = posterior_data$beta2_post[i]
+    )
+  }
+
+  # The per-pair root-find is the compute bottleneck and is embarrassingly
+  # parallel: each pair is independent and .mixture_quantile is deterministic,
+  # so forking across cores gives IDENTICAL results, just faster. Serial for
+  # small inputs (fork overhead) or when cores == 1 (opt-out / non-unix).
+  cores <- .ss_cores()
+  vals <- if (cores > 1L && length(idx) >= .SS_PARALLEL_MIN) {
+    res <- parallel::mclapply(idx, quantile_one, mc.cores = cores)
+    vapply(
+      res,
+      function(x) if (length(x) == 1L && is.numeric(x)) as.double(x) else NA_real_,
+      double(1)
+    )
+  } else {
+    vapply(idx, quantile_one, double(1))
+  }
 
   posterior_data[[col_name]] <- vals
   posterior_data
+}
+
+# Minimum number of pairs before parallelizing (fork overhead not worth it below).
+.SS_PARALLEL_MIN <- 2000L
+
+#' Resolve the worker-core count for the per-pair posterior quantile solve.
+#'
+#' Controlled by `options(safetysignal.cores = N)`; defaults to one fewer than
+#' the detected cores. Forced to 1 on non-unix platforms (mclapply forking is
+#' unix-only). Set to 1 to disable parallelism entirely.
+#' @noRd
+.ss_cores <- function() {
+  n <- getOption("safetysignal.cores", NULL)
+  if (is.null(n)) {
+    n <- tryCatch(parallel::detectCores(), error = function(e) 1L)
+    n <- max(1L, n - 1L)
+  }
+  if (.Platform$OS.type != "unix") n <- 1L
+  max(1L, as.integer(n))
 }
 
 

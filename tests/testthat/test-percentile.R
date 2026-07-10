@@ -30,6 +30,26 @@ test_that("posterior_percentile ordering: EB05 < EB95", {
   expect_true(all(result$eb05 < result$eb95))
 })
 
+test_that("parallel path is method-preserving (identical to serial)", {
+  skip_on_os("windows")
+  old <- options(safetysignal.cores = 1L)
+  on.exit(options(old), add = TRUE)
+
+  set.seed(42)
+  n <- 3000L # above .SS_PARALLEL_MIN, so the mclapply path is exercised
+  post <- tibble::tibble(
+    q_post = runif(n, 0.3, 0.9),
+    alpha1_post = runif(n, 1, 50), beta1_post = runif(n, 1, 30),
+    alpha2_post = runif(n, 1, 20), beta2_post = runif(n, 1, 20)
+  )
+
+  serial <- posterior_percentile(post, 0.05)$eb05
+  options(safetysignal.cores = 2L)
+  parallel <- posterior_percentile(post, 0.05)$eb05
+
+  expect_equal(serial, parallel)
+})
+
 test_that("posterior_percentile rejects invalid percentile", {
   post <- tibble::tibble(
     drug = "A", event = "X", observed = 1, expected = 1, rr = 1,
