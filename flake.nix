@@ -34,6 +34,7 @@
 
             # Suggests
             ggplot2
+            openEBGM
             knitr
             rmarkdown
             testthat
